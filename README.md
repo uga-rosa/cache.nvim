@@ -1,2 +1,3 @@
-# cache.lua
-lru and lfu
+# cache.nvim
+
+lru and lfu cache for neovim lua
