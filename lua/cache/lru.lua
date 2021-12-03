@@ -4,21 +4,20 @@
 ---@field value any
 ---@field prev CacheNode
 ---@field next CacheNode
-local CacheNode = setmetatable({}, {
-    ---Initialize the cache node
-    ---@param _ any
-    ---@param key any
-    ---@param value any
-    ---@return CacheNode
-    __call = function(_, key, value)
-        return {
-            key = key,
-            value = value,
-            prev = nil,
-            next = nil,
-        }
-    end,
-})
+local CacheNode = {}
+
+---Initialize the cache node
+---@param key any
+---@param value any
+---@return CacheNode
+function CacheNode.init(key, value)
+    return {
+        key = key,
+        value = value,
+        prev = nil,
+        next = nil,
+    }
+end
 
 ---@diagnostic disable-next-line: duplicate-doc-class
 ---@class LinkedList
@@ -26,25 +25,23 @@ local CacheNode = setmetatable({}, {
 ---@field tail CacheNode
 local LinkedList = {}
 
-setmetatable(LinkedList, {
-    ---Initialize the linked list
-    ---@return LinkedList
-    __call = function()
-        local self = {}
-        self.head = CacheNode(0, 0) -- dummy
-        self.tail = CacheNode(0, 0) -- dummy
-        self.head.next = self.tail
-        self.tail.prev = self.head
-        return setmetatable(self, { __index = LinkedList })
-    end,
-})
+---Initialize the linked list
+---@return LinkedList
+function LinkedList.init()
+    local self = {}
+    self.head = CacheNode.init(0, 0) -- dummy
+    self.tail = CacheNode.init(0, 0) -- dummy
+    self.head.next = self.tail
+    self.tail.prev = self.head
+    return setmetatable(self, { __index = LinkedList })
+end
 
 ---Add node
 ---@param node CacheNode
 function LinkedList:add(node)
     node.prev = self.head
-    self.head.next = node
     node.next = self.head.next
+    self.head.next = node
     node.next.prev = node
 end
 
@@ -68,30 +65,27 @@ end
 ---@field linked_list LinkedList
 local LruCache = {}
 
-setmetatable(LruCache, {
-    ---Initialize the cache
-    ---@param _ any
-    ---@param capacity integer
-    ---@return LruCache
-    __call = function(_, capacity)
-        local self = {}
-        self.capacity = capacity
-        self.key2node = {}
-        self.linked_list = LinkedList()
-        return setmetatable(self, { __index = LruCache })
-    end,
-})
+---Initialize the cache
+---@param capacity integer
+---@return LruCache
+function LruCache.init(capacity)
+    local self = {}
+    self.capacity = capacity
+    self.key2node = {}
+    self.linked_list = LinkedList.init()
+    return setmetatable(self, { __index = LruCache })
+end
 
 ---Add a data to the cache
 ---@param key any
 ---@param value any
-function LruCache:put(key, value)
+function LruCache:set(key, value)
     if self.key2node[key] then
         local node = self.key2node[key]
         node.value = value
         self.linked_list:move2head(node)
     else
-        local new_node = CacheNode(key, value)
+        local new_node = CacheNode.init(key, value)
         self.key2node[key] = new_node
         self.linked_list:add(new_node)
 
@@ -107,7 +101,7 @@ end
 ---@return any
 function LruCache:get(key)
     if self.key2node[key] then
-        self.linked_list.move2head(self.key2node[key])
+        self.linked_list:move2head(self.key2node[key])
         return self.key2node[key].value
     end
 end
