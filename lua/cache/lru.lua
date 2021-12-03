@@ -1,10 +1,15 @@
 ---@diagnostic disable-next-line: duplicate-doc-class
 ---@class CacheNode
----@field key integer
----@field value integer
+---@field key any
+---@field value any
 ---@field prev CacheNode
 ---@field next CacheNode
 local CacheNode = setmetatable({}, {
+    ---Initialize the cache node
+    ---@param _ any
+    ---@param key any
+    ---@param value any
+    ---@return CacheNode
     __call = function(_, key, value)
         return {
             key = key,
@@ -22,6 +27,8 @@ local CacheNode = setmetatable({}, {
 local LinkedList = {}
 
 setmetatable(LinkedList, {
+    ---Initialize the linked list
+    ---@return LinkedList
     __call = function()
         local self = {}
         self.head = CacheNode(0, 0) -- dummy
@@ -32,6 +39,8 @@ setmetatable(LinkedList, {
     end,
 })
 
+---Add node
+---@param node CacheNode
 function LinkedList:add(node)
     node.prev = self.head
     self.head.next = node
@@ -39,11 +48,15 @@ function LinkedList:add(node)
     node.next.prev = node
 end
 
+---Remove node
+---@param node CacheNode
 function LinkedList:remove(node)
     node.prev.next = node.next
     node.next.prev = node.prev
 end
 
+---Move node to the head
+---@param node CacheNode
 function LinkedList:move2head(node)
     self:remove(node)
     self:add(node)
@@ -51,11 +64,15 @@ end
 
 ---@class LruCache
 ---@field capacity integer
----@field key2node table<integer, CacheNode>
+---@field key2node table<any, CacheNode>
 ---@field linked_list LinkedList
 local LruCache = {}
 
 setmetatable(LruCache, {
+    ---Initialize the cache
+    ---@param _ any
+    ---@param capacity integer
+    ---@return LruCache
     __call = function(_, capacity)
         local self = {}
         self.capacity = capacity
@@ -65,6 +82,9 @@ setmetatable(LruCache, {
     end,
 })
 
+---Add a data to the cache
+---@param key any
+---@param value any
 function LruCache:put(key, value)
     if self.key2node[key] then
         local node = self.key2node[key]
@@ -82,6 +102,9 @@ function LruCache:put(key, value)
     end
 end
 
+---Fetching a data from the cache
+---@param key any
+---@return any
 function LruCache:get(key)
     if self.key2node[key] then
         self.linked_list.move2head(self.key2node[key])

@@ -8,6 +8,11 @@
 local CacheNode = {}
 
 setmetatable(CacheNode, {
+    ---Initialize the cache node
+    ---@param _ any
+    ---@param key any
+    ---@param value any
+    ---@return CacheNode
     __call = function(_, key, value)
         return {
             key = key,
@@ -27,6 +32,8 @@ setmetatable(CacheNode, {
 local LinkedList = {}
 
 setmetatable(LinkedList, {
+    ---Initialize the linked list
+    ---@return LinkedList
     __call = function()
         local self = {}
         self.head = CacheNode(0, 0) -- dummy
@@ -38,10 +45,14 @@ setmetatable(LinkedList, {
     end,
 })
 
+---Get the length of linked list
+---@return integer
 function LinkedList:len()
     return self.length
 end
 
+---Add node
+---@param node CacheNode
 function LinkedList:add(node)
     node.prev = self.head
     self.head.next = node
@@ -50,6 +61,8 @@ function LinkedList:add(node)
     self.length = self.length + 1
 end
 
+---Remove node
+---@param node CacheNode
 function LinkedList:remove(node)
     node.prev.next = node.next
     node.next.prev = node.prev
@@ -65,6 +78,10 @@ end
 local LfuCache = {}
 
 setmetatable(LfuCache, {
+    ---Initialize the cache
+    ---@param _ any
+    ---@param capacity integer
+    ---@return LfuCache
     __call = function(_, capacity)
         local self = {}
         self.capacity = capacity
@@ -76,6 +93,9 @@ setmetatable(LfuCache, {
     end,
 })
 
+---Add a data to the cache
+---@param key any
+---@param value any
 function LfuCache:put(key, value)
     if self.key2node[key] then
         local node = self.key2node[key]
@@ -97,6 +117,9 @@ function LfuCache:put(key, value)
     end
 end
 
+---Fetching a data from the cache
+---@param key any
+---@return any
 function LfuCache:get(key)
     if self.key2node[key] then
         local node = self.key2node[key]
@@ -105,6 +128,8 @@ function LfuCache:get(key)
     end
 end
 
+---Update the number of accesses to a node
+---@param node CacheNode
 function LfuCache:_update(node)
     local cur_freq = node.freq
     node.freq = cur_freq + 1
