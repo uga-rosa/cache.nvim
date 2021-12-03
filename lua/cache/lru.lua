@@ -1,3 +1,4 @@
+---@diagnostic disable-next-line: duplicate-doc-class
 ---@class CacheNode
 ---@field key integer
 ---@field value integer
@@ -14,6 +15,7 @@ local CacheNode = setmetatable({}, {
     end,
 })
 
+---@diagnostic disable-next-line: duplicate-doc-class
 ---@class LinkedList
 ---@field head CacheNode
 ---@field tail CacheNode
@@ -65,12 +67,13 @@ setmetatable(LruCache, {
 
 function LruCache:put(key, value)
     if self.key2node[key] then
-        self.key2node[key].value = value
-        self.linked_list:move2head(self.key2node[key])
+        local node = self.key2node[key]
+        node.value = value
+        self.linked_list:move2head(node)
     else
-        local node = CacheNode(key, value)
-        self.key2node[key] = node
-        self.linked_list:add(node)
+        local new_node = CacheNode(key, value)
+        self.key2node[key] = new_node
+        self.linked_list:add(new_node)
 
         if vim.tbl_count(self.key2node) > self.capacity then
             self.key2node[self.linked_list.tail.prev.key] = nil
@@ -85,3 +88,5 @@ function LruCache:get(key)
         return self.key2node[key].value
     end
 end
+
+return LruCache
