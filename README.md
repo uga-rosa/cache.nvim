@@ -44,7 +44,7 @@ dump(fc:get("hello")) -- freq = 2
 dump(fc:get(12)) -- freq = 2
 
 fc:set(false, "true") -- over capacity
-dump(rc:get(true)) -- Removed the least frequent cache with the oldest accesses.
+dump(rc:get("hello")) -- Removed the least frequent cache with the oldest accesses.
 ```
 
 # License
